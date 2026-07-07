@@ -30,7 +30,13 @@ def parse_time(time_str):
     display_age(time_t lastchange)
     {
         static char sage[30];
-        int age = (int)(time(NULL) - lastchange);
+        int current = (int)(time(NULL));
+        int age;
+        if ( current >= lastchange) {
+            age = current - lastchange;
+        } else {
+            age = lastchange - current;
+        }
         if (snprintf(sage, sizeof(sage),
             "%d day%s, %02d:%02d:%02d",
             age / (60*60*24),
@@ -45,6 +51,8 @@ def parse_time(time_str):
     :return: parsed age in time ticks (or seconds)
     """
     try:
+        if '-' in time_str:
+            return 0
         days, hour_min_secs = re.split(LLDPD_UPTIME_RE_SPLIT_PATTERN, time_str)
         struct_time = time.strptime(hour_min_secs, LLDPD_TIME_FORMAT)
         time_delta = datetime.timedelta(days=int(days), hours=struct_time.tm_hour,
